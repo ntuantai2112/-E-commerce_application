@@ -33,7 +33,7 @@ public class AuthenticationService {
 
     @NonFinal
     @Value("${jwt.signerKey}")
-    protected  String SIGNER_KEY ;
+    protected String SIGNER_KEY;
 
 
     public IntrospectResponse introspect(IntrospectRequest request) throws JOSEException, ParseException {
@@ -51,6 +51,9 @@ public class AuthenticationService {
                 .valid(verified)
                 .build();
     }
+
+
+
 
     public AuthenticationResponse authenticationUser(AuthenticationRequest request) {
 
@@ -104,6 +107,8 @@ public class AuthenticationService {
         }
 
     }
+
+
 
 
 }
