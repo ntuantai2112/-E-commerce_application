@@ -21,4 +21,6 @@ public interface UserService {
 
     UserResponse updateUser(Integer id,UserRequest request);
 
+    UserResponse getMyInfo();
+
 }

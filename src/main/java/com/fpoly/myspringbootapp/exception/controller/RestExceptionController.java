@@ -2,11 +2,14 @@ package com.fpoly.myspringbootapp.exception.controller;
 
 
 import com.fpoly.myspringbootapp.dto.response.ApiResponse;
+import com.fpoly.myspringbootapp.enums.AppException;
+import com.fpoly.myspringbootapp.enums.ErrorCodeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -80,7 +83,20 @@ public class RestExceptionController {
         response.setCode(errorCode.getCode());
         response.setMessage(errorCode.getMessage());
 
-        return ResponseEntity.badRequest().body(response);
+        return ResponseEntity
+                .status(errorCode.getStatusCode())
+                .body(response);
+    }
+
+
+    @ExceptionHandler(value = AccessDeniedException.class)
+    ResponseEntity<ApiResponse<?>> handlingAccessDeniedException(AccessDeniedException e) {
+
+        ErrorCodeException errorCodeException = ErrorCodeException.UNAUTHORIZED;
+        ApiResponse<String> response = new ApiResponse<>();
+        response.setCode(errorCodeException.getCode());
+        response.setMessage(errorCodeException.getMessage());
+        return ResponseEntity.status(errorCodeException.getStatusCode()).body(response);
     }
 
 

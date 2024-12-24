@@ -1,5 +1,6 @@
-package com.fpoly.myspringbootapp.exception.controller;
+package com.fpoly.myspringbootapp.enums;
 
+import com.fpoly.myspringbootapp.enums.ErrorCodeException;
 import lombok.Getter;
 import lombok.Setter;
 
