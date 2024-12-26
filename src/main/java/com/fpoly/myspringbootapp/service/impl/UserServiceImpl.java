@@ -4,9 +4,11 @@ import com.fpoly.myspringbootapp.dto.request.UserRequest;
 import com.fpoly.myspringbootapp.dto.response.UserResponse;
 import com.fpoly.myspringbootapp.entity.UserEntity;
 import com.fpoly.myspringbootapp.enums.Role;
-import com.fpoly.myspringbootapp.enums.AppException;
+import com.fpoly.myspringbootapp.exception.controller.AppException;
 import com.fpoly.myspringbootapp.enums.ErrorCodeException;
 import com.fpoly.myspringbootapp.mapper.UserMapper;
+import com.fpoly.myspringbootapp.repository.PermissionRepository;
+import com.fpoly.myspringbootapp.repository.RoleRepository;
 import com.fpoly.myspringbootapp.repository.UserRepository;
 import com.fpoly.myspringbootapp.service.UserService;
 import lombok.AccessLevel;
@@ -21,6 +23,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,8 +38,13 @@ public class UserServiceImpl implements UserService {
 
     UserMapper mapper;
 
+    RoleRepository roleRepository;
+
+    PermissionRepository permissionRepository;
+
     @Override
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('CREATE_POST')")
+    @PreAuthorize("hasAuthority('CREATE_POST')")
     public List<UserResponse> getAllUser() {
         log.info("In method get User");
         List<UserResponse> users = userRepository.findAll().stream()
@@ -84,7 +92,15 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse updateUser(Integer id, UserRequest request) {
-        return null;
+
+        UserEntity user = userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCodeException.USER_NOT_EXITS));
+        mapper.updateUser(user, request);
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        var roles = roleRepository.findAllById(request.getRoles());
+        user.setRoles(new HashSet<>(roles));
+
+        return mapper.toUserResponse(userRepository.save(user));
     }
 
     @Override

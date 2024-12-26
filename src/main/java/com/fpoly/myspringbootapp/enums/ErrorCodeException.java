@@ -17,6 +17,8 @@ public enum ErrorCodeException {
     COMMUNE_NAME_EXISTS(1003, "The commune already exists!",HttpStatus.BAD_REQUEST),
     PROVINCE_NOT_FOUND(404, "The province not found!",HttpStatus.NOT_FOUND),
     USER_NOT_EXITS(404, "The user not found!",HttpStatus.NOT_FOUND),
+    ROLE_NOT_EXITS(404, "The role not found!",HttpStatus.NOT_FOUND),
+    PERMISSION_NOT_EXITS(404, "The permission not found!",HttpStatus.NOT_FOUND),
     DISTRICT_NOT_FOUND(404, "The district not found!",HttpStatus.NOT_FOUND),
     CERTIFICATE_NOT_FOUND(404, "The certificate not found!",HttpStatus.NOT_FOUND),
     COMMUNE_NOT_FOUND(404, "The commune not found!",HttpStatus.NOT_FOUND),

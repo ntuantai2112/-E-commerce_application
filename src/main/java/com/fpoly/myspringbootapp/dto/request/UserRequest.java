@@ -2,6 +2,8 @@ package com.fpoly.myspringbootapp.dto.request;
 
 import lombok.*;
 
+import java.util.List;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -16,4 +18,6 @@ public class UserRequest {
     private String gender;
     private String image;
     private Integer age;
+
+    private List<String> roles;
 }

@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.Objects;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -18,6 +19,7 @@ import java.util.Objects;
 public class UserEntity {
 
     @Id
+    @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
     private String name;
@@ -27,7 +29,9 @@ public class UserEntity {
     private String image;
     private Integer age;
     private Integer loginCounter;
-    private String role;
+
+    @ManyToMany()
+    private Set<Role> roles;
 
 
 }

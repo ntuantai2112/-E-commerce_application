@@ -53,6 +53,18 @@ public class RestUserController {
 
     }
 
+    @PutMapping("/update/{id}")
+    public ResponseEntity<ApiResponse<UserResponse>> updateUser(@PathVariable Integer id, @RequestBody UserRequest userRequest) {
+
+        ApiResponse<UserResponse> responses = new ApiResponse<>();
+        responses.setResult(userService.updateUser(id, userRequest));
+        responses.setMessage("Success fully!");
+        responses.setCode(100);
+        return ResponseEntity.ok(responses);
+
+    }
+
+
     @GetMapping("/get-user/{id}")
     public ResponseEntity<ApiResponse<UserResponse>> getUserById(@PathVariable Integer id) {
         ApiResponse<UserResponse> responses = new ApiResponse<>();

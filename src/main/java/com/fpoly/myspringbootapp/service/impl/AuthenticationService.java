@@ -4,8 +4,9 @@ import com.fpoly.myspringbootapp.dto.request.AuthenticationRequest;
 import com.fpoly.myspringbootapp.dto.request.IntrospectRequest;
 import com.fpoly.myspringbootapp.dto.response.AuthenticationResponse;
 import com.fpoly.myspringbootapp.dto.response.IntrospectResponse;
+import com.fpoly.myspringbootapp.entity.Role;
 import com.fpoly.myspringbootapp.entity.UserEntity;
-import com.fpoly.myspringbootapp.enums.AppException;
+import com.fpoly.myspringbootapp.exception.controller.AppException;
 import com.fpoly.myspringbootapp.enums.ErrorCodeException;
 import com.fpoly.myspringbootapp.repository.UserRepository;
 import com.nimbusds.jose.*;
@@ -23,11 +24,14 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.StringJoiner;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -97,7 +101,7 @@ public class AuthenticationService {
                 .expirationTime(
                         Date.from(Instant.now().plus(1, ChronoUnit.HOURS))
                 )
-                .claim("scope", user.getRole())
+                .claim("scope", buildScope(user))
                 .build();
 
 
@@ -111,6 +115,27 @@ public class AuthenticationService {
             e.printStackTrace();
             throw new RuntimeException(e);
         }
+
+    }
+
+
+    private String buildScope(UserEntity user) {
+
+        StringJoiner stringJoiner = new StringJoiner(" ");
+
+        if (!CollectionUtils.isEmpty(user.getRoles())) {
+            user.getRoles().forEach(role -> {
+                stringJoiner.add("ROLE_" + role.getName());
+                if (!CollectionUtils.isEmpty(role.getPermissions())) {
+                    role.getPermissions()
+                            .forEach(permission -> {
+                                stringJoiner.add(permission.getName());
+                            });
+                }
+            });
+        }
+
+        return stringJoiner.toString();
 
     }
 

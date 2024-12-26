@@ -2,7 +2,6 @@ package com.fpoly.myspringbootapp.exception.controller;
 
 
 import com.fpoly.myspringbootapp.dto.response.ApiResponse;
-import com.fpoly.myspringbootapp.enums.AppException;
 import com.fpoly.myspringbootapp.enums.ErrorCodeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
