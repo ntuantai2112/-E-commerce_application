@@ -11,6 +11,7 @@ import com.fpoly.myspringbootapp.repository.PermissionRepository;
 import com.fpoly.myspringbootapp.repository.RoleRepository;
 import com.fpoly.myspringbootapp.repository.UserRepository;
 import com.fpoly.myspringbootapp.service.UserService;
+import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -23,6 +24,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -70,16 +73,16 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public UserResponse addUser(UserRequest request) {
+    public UserResponse addUser(@Valid UserRequest request) {
         UserRequest value = request;
         UserEntity user = mapper.toUser(request);
-//        if (request.getPassword() == null || request.getPassword().isEmpty()) {
-//            throw new IllegalArgumentException("Password must not be null or empty");
-//        }
+        if (request.getPassword() == null || request.getPassword().isEmpty()) {
+            throw new IllegalArgumentException("Password must not be null or empty");
+        }
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        if (request.getRole() == null || request.getRole().isEmpty()) {
-            request.setRole(Role.USER.name());
+        if (request.getRoles() == null || request.getRoles().isEmpty()) {
+            request.setRoles(Collections.singletonList(Role.USER.name()));
         }
 
         return mapper.toUserResponse(userRepository.save(user));

@@ -2,12 +2,15 @@ package com.fpoly.myspringbootapp.service.impl;
 
 import com.fpoly.myspringbootapp.dto.request.AuthenticationRequest;
 import com.fpoly.myspringbootapp.dto.request.IntrospectRequest;
+import com.fpoly.myspringbootapp.dto.request.LogoutRequest;
 import com.fpoly.myspringbootapp.dto.response.AuthenticationResponse;
 import com.fpoly.myspringbootapp.dto.response.IntrospectResponse;
+import com.fpoly.myspringbootapp.entity.InvalidatedToken;
 import com.fpoly.myspringbootapp.entity.Role;
 import com.fpoly.myspringbootapp.entity.UserEntity;
 import com.fpoly.myspringbootapp.exception.controller.AppException;
 import com.fpoly.myspringbootapp.enums.ErrorCodeException;
+import com.fpoly.myspringbootapp.repository.InvalidedTokenRepository;
 import com.fpoly.myspringbootapp.repository.UserRepository;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
@@ -31,6 +34,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.StringJoiner;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -43,24 +47,25 @@ public class AuthenticationService {
 
     UserRepository repository;
 
+    InvalidedTokenRepository invalidedTokenRepository;
+
     @NonFinal
     @Value("${jwt.signerKey}")
     protected String SIGNER_KEY;
 
-
+    //kiểm tra (introspect) tính hợp lệ của một token bằng cách xác minh chữ ký và hạn sử dụng của token.
     public IntrospectResponse introspect(IntrospectRequest request) throws JOSEException, ParseException {
 
-
         var token = request.getToken();
+        boolean isValid = true;
 
-        JWSVerifier verifier = new MACVerifier(SIGNER_KEY.getBytes());
-
-        SignedJWT signedJWT = SignedJWT.parse(token);
-
-        Date expiryTime = signedJWT.getJWTClaimsSet().getExpirationTime();
-        var verified = signedJWT.verify(verifier) && !expiryTime.before(new Date());
+        try {
+            verifyToken(token);
+        } catch (AppException e) {
+            isValid = false;
+        }
         return IntrospectResponse.builder()
-                .valid(verified)
+                .valid(isValid)
                 .build();
     }
 
@@ -101,6 +106,7 @@ public class AuthenticationService {
                 .expirationTime(
                         Date.from(Instant.now().plus(1, ChronoUnit.HOURS))
                 )
+                .jwtID(UUID.randomUUID().toString())
                 .claim("scope", buildScope(user))
                 .build();
 
@@ -137,6 +143,50 @@ public class AuthenticationService {
 
         return stringJoiner.toString();
 
+    }
+
+
+    // Tạo hàm logoutToken
+    public void logoutToken(LogoutRequest request) throws ParseException, JOSEException {
+        var sign = verifyToken(request.getToken());
+
+        String jwtId = sign.getJWTClaimsSet().getJWTID();
+        Date expiryTime = sign.getJWTClaimsSet().getExpirationTime();
+
+        InvalidatedToken invalidatedToken = InvalidatedToken.builder()
+                .id(jwtId )
+                .expiryTime(expiryTime)
+                .build();
+
+        invalidedTokenRepository.save(invalidatedToken);
+
+
+    }
+
+
+    // Tạo hàm verifyToken
+    private SignedJWT verifyToken(String token) throws JOSEException, ParseException {
+
+        var jwtToken = token;
+
+        JWSVerifier verifier = new MACVerifier(SIGNER_KEY.getBytes());
+
+        SignedJWT signedJWT = SignedJWT.parse(jwtToken);
+
+        Date expiryTime = signedJWT.getJWTClaimsSet().getExpirationTime();
+        var verified = signedJWT.verify(verifier) && !expiryTime.before(new Date());
+
+        if (!verified) {
+            throw new AppException(ErrorCodeException.UNAUTHENTICATED);
+        }
+
+
+        if (invalidedTokenRepository.existsById(signedJWT.getJWTClaimsSet().getJWTID())) {
+            throw new AppException(ErrorCodeException.UNAUTHENTICATED);
+        }
+
+
+        return signedJWT;
     }
 
 

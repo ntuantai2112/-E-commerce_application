@@ -2,9 +2,11 @@ package com.fpoly.myspringbootapp.controller.rest;
 
 import com.fpoly.myspringbootapp.dto.request.AuthenticationRequest;
 import com.fpoly.myspringbootapp.dto.request.IntrospectRequest;
+import com.fpoly.myspringbootapp.dto.request.LogoutRequest;
 import com.fpoly.myspringbootapp.dto.response.ApiResponse;
 import com.fpoly.myspringbootapp.dto.response.AuthenticationResponse;
 import com.fpoly.myspringbootapp.dto.response.IntrospectResponse;
+import com.fpoly.myspringbootapp.enums.ErrorCodeException;
 import com.fpoly.myspringbootapp.service.impl.AuthenticationService;
 import com.nimbusds.jose.JOSEException;
 import lombok.AccessLevel;
@@ -49,5 +51,13 @@ public class RestAuthenticationController {
         response.setCode(1000);
         return ResponseEntity.ok(response);
 
+    }
+
+    @PostMapping("/logout")
+    public ApiResponse<Void> logout(@RequestBody LogoutRequest request) throws ParseException, JOSEException {
+        service.logoutToken(request);
+        return ApiResponse.<Void>builder()
+                .code(ErrorCodeException.SUCCESS_CODE.getCode())
+                .build();
     }
 }

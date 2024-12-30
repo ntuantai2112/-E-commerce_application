@@ -2,6 +2,7 @@ package com.fpoly.myspringbootapp.config;
 
 import com.fpoly.myspringbootapp.entity.UserEntity;
 import com.fpoly.myspringbootapp.enums.Role;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,23 +27,21 @@ import java.util.StringJoiner;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    public final String[] PUBLIC_ENDPOINTS = {"/auth/token", "/auth/introspect", "/api/user/add"};
+    public final String[] PUBLIC_ENDPOINTS = {"/auth/token", "/auth/introspect", "/api/user/add", "/auth/logout"};
 
-    @Value("${jwt.signerKey}")
-    protected String SIGNER_KEY;
+    @Autowired
+    private CustomJwtDecoder customJwtDecoder;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.authorizeHttpRequests(request ->
-                        request.requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll()
-//                        .requestMatchers(HttpMethod.GET, "/api/user/get-all")
-//                        .hasRole(Role.ADMIN.name())
-                                .anyRequest().authenticated()
+                request.requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll()
+                        .anyRequest().authenticated()
         );
 
         httpSecurity.oauth2ResourceServer(outh2 ->
                 outh2.jwt(jwtConfigurer ->
-                        jwtConfigurer.decoder(jwtDecoder())
+                        jwtConfigurer.decoder(customJwtDecoder)
                                 .jwtAuthenticationConverter(jwtAuthenticationConverter())
                                 .and().authenticationEntryPoint(new JwtAuthenticationEntryPoint())
                 )
@@ -63,13 +62,5 @@ public class SecurityConfig {
         return jwtAuthenticationConverter;
     }
 
-
-    @Bean
-    JwtDecoder jwtDecoder() {
-        SecretKeySpec secretKeySpec = new SecretKeySpec(SIGNER_KEY.getBytes(), "HS512");
-        return NimbusJwtDecoder.withSecretKey(secretKeySpec)
-                .macAlgorithm(MacAlgorithm.HS512)
-                .build();
-    }
 
 }
