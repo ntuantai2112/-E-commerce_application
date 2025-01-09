@@ -3,6 +3,7 @@ package com.fpoly.myspringbootapp.controller.rest;
 import com.fpoly.myspringbootapp.dto.request.AuthenticationRequest;
 import com.fpoly.myspringbootapp.dto.request.IntrospectRequest;
 import com.fpoly.myspringbootapp.dto.request.LogoutRequest;
+import com.fpoly.myspringbootapp.dto.request.RefreshRequest;
 import com.fpoly.myspringbootapp.dto.response.ApiResponse;
 import com.fpoly.myspringbootapp.dto.response.AuthenticationResponse;
 import com.fpoly.myspringbootapp.dto.response.IntrospectResponse;
@@ -59,5 +60,17 @@ public class RestAuthenticationController {
         return ApiResponse.<Void>builder()
                 .code(ErrorCodeException.SUCCESS_CODE.getCode())
                 .build();
+    }
+
+
+    @PostMapping("/refresh")
+    public ResponseEntity<ApiResponse<AuthenticationResponse>> refreshToken(@RequestBody RefreshRequest request) throws ParseException, JOSEException {
+
+        ApiResponse<AuthenticationResponse> response = new ApiResponse<>();
+        var result = service.refreshToken(request);
+        response.setResult(result);
+        response.setCode(ErrorCodeException.SUCCESS_CODE.getCode());
+        return ResponseEntity.ok(response);
+
     }
 }

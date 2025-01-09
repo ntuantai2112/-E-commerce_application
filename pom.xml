@@ -33,14 +33,12 @@
     <dependencies>
 
 
-
         <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-oauth2-resource-server -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
             <version>3.3.4</version>
         </dependency>
-
 
 
         <!-- https://mvnrepository.com/artifact/org.springdoc/springdoc-openapi-ui -->
@@ -57,7 +55,6 @@
             <artifactId>nimbus-jose-jwt</artifactId>
             <version>9.41.2</version>
         </dependency>
-
 
 
         <!-- https://mvnrepository.com/artifact/org.springframework.security/spring-security-crypto -->
@@ -104,15 +101,12 @@
         </dependency>
 
 
-
-
         <!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-jdbc</artifactId>
-<!--            <version>6.1.12</version>-->
+            <!--            <version>6.1.12</version>-->
         </dependency>
-
 
 
         <!-- Spring Boot Starter Data JPA (cho JPA và Hibernate) -->
@@ -141,11 +135,11 @@
         </dependency>
 
 
-        <dependency>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-compiler-plugin</artifactId>
-            <version>3.8.1</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.apache.maven.plugins</groupId>-->
+<!--            <artifactId>maven-compiler-plugin</artifactId>-->
+<!--            <version>3.8.1</version>-->
+<!--        </dependency>-->
 
 
         <dependency>
@@ -173,12 +167,12 @@
         </dependency>
 
 
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+
     </dependencies>
 
     <build>
@@ -197,6 +191,25 @@
 
 
             </plugin>
+
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.3.1</version>
+                <configuration>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.sonarsource.scanner.maven</groupId>
+                <artifactId>sonar-maven-plugin</artifactId>
+                <version>3.9.1.2184</version> <!-- hoặc phiên bản mới nhất -->
+            </plugin>
+
+
+
         </plugins>
     </build>
 
@@ -210,6 +223,12 @@
             <id>jcenter</id>
             <url>https://jcenter.bintray.com</url>
         </repository>
+
+        <repository>
+            <id>central</id>
+            <url>https://repo.maven.apache.org/maven2</url>
+        </repository>
+
     </repositories>
 
 

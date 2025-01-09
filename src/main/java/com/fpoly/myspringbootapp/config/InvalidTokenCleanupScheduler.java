@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.Date;
@@ -16,8 +17,9 @@ public class InvalidTokenCleanupScheduler {
 
     private final InvalidedTokenRepository invalidedTokenRepository;
 
-    // CronJob chạy mỗi ngày lúc 12h đêm
+    // CronJob chạy mỗi ngày cứ 3h chạy vào 1 lần
     @Scheduled(cron = "0 0 */3 * * *")
+    @Transactional
     public void cleanupExpiredTokens() {
         log.info("Running cleanupExpiredTokens CronJob at {}", new Date());
 
