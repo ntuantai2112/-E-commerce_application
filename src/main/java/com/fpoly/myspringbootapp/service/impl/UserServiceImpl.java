@@ -23,6 +23,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -73,12 +74,16 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public UserResponse addUser(@Valid UserRequest request) {
-        UserRequest value = request;
+    public UserResponse addUser(UserRequest request) {
         UserEntity user = mapper.toUser(request);
         if (request.getPassword() == null || request.getPassword().isEmpty()) {
             throw new IllegalArgumentException("Password must not be null or empty");
         }
+
+        if (userRepository.findByUsername(request.getUsername()).isPresent()) {
+            throw new AppException(ErrorCodeException.USER_READY_EXITS);
+        }
+
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         if (request.getRoles() == null || request.getRoles().isEmpty()) {
@@ -94,7 +99,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponse updateUser(Integer id, UserRequest request) {
+    public UserResponse updateUser(Integer id, @Valid UserRequest request) {
 
         UserEntity user = userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCodeException.USER_NOT_EXITS));
         mapper.updateUser(user, request);

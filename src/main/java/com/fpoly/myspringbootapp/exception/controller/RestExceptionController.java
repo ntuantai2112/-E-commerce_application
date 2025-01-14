@@ -64,16 +64,17 @@ public class RestExceptionController {
 
 
     //    //    Bat loi Exception khi goi submit du lieu khong dung
-    @ExceptionHandler({HttpMessageNotReadableException.class, MethodArgumentNotValidException.class})
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> badRequestHandler(Exception ex) {
-        logger.info(ex.getMessage());
-        Map<String, String> map = new HashMap<>();
-        map.put("code", "400");
-        map.put("error", "Params are wrong types");
-
-        return map;
-    }
+//    @ExceptionHandler({HttpMessageNotReadableException.class, MethodArgumentNotValidException.class})
+//    @ResponseStatus(HttpStatus.BAD_REQUEST)
+//    public Map<String, String> badRequestHandler(Exception ex) {
+//        logger.info(ex.getMessage());
+//        Map<String, String> map = new HashMap<>();
+//        map.put("code", "400");
+//        map.put("code", "400");
+//        map.put("error", "Params are wrong types");
+//
+//        return map;
+//    }
 
     @ExceptionHandler(value = AppException.class)
     ResponseEntity<ApiResponse<String>> handleAppException(AppException e) {
@@ -99,6 +100,26 @@ public class RestExceptionController {
     }
 
 
+
+    @ExceptionHandler(value = MethodArgumentNotValidException.class)
+    ResponseEntity<ApiResponse<String>> handlingValidationException(MethodArgumentNotValidException e) {
+
+        String enumKey = e.getBindingResult().getFieldError().getDefaultMessage();
+        ErrorCodeException errorCode = ErrorCodeException.ERROR_CODE;
+
+        try {
+            errorCode = ErrorCodeException.valueOf(enumKey);
+        } catch (IllegalStateException exception) {
+        }
+
+        ApiResponse<String> response = new ApiResponse<>();
+        response.setCode(errorCode.getCode());
+        response.setMessage(errorCode.getMessage());
+        return ResponseEntity.badRequest().body(response);
+
+    }
+
+
     @ExceptionHandler(value = Exception.class)
     ResponseEntity<ApiResponse<String>> handlingException(Exception e) {
 
@@ -108,5 +129,9 @@ public class RestExceptionController {
         return ResponseEntity.badRequest().body(response);
 
     }
+
+
+
+
 
 }

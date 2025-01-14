@@ -5,6 +5,7 @@ import com.fpoly.myspringbootapp.dto.response.ApiResponse;
 import com.fpoly.myspringbootapp.dto.response.UserResponse;
 import com.fpoly.myspringbootapp.enums.ErrorCodeException;
 import com.fpoly.myspringbootapp.service.UserService;
+import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -43,7 +44,7 @@ public class RestUserController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<ApiResponse<UserResponse>> allUser(@RequestBody UserRequest userRequest) {
+    public ResponseEntity<ApiResponse<UserResponse>> allUser( @RequestBody @Valid UserRequest userRequest) {
 
         ApiResponse<UserResponse> responses = new ApiResponse<>();
         responses.setResult(userService.addUser(userRequest));
